@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "757279698129",
+    "project_id": "reflekt-journal-a436b",
+    "storage_bucket": "reflekt-journal-a436b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:757279698129:android:bf02ee56e7d059137169f0",
+        "android_client_info": {
+          "package_name": "com.yourname.reflekt.reflekt_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDihYafE-5bed2QqvjSCKNQ9XVhEI70g2o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

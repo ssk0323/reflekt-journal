@@ -72,4 +72,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'reflekt-journal-a436b.firebasestorage.app',
     iosBundleId: 'com.yourname.reflekt.reflektApp',
   );
+
 }

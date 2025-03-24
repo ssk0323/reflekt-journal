@@ -1,46 +1,91 @@
 import 'package:flutter/material.dart';
-import 'package:reflekt_app/services/firebase/auth_service.dart';
+import '../theme/theme_showcase.dart';
+import 'firebase_test_screen.dart';
+import '../design_system/components/index.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  final AuthService _authService = AuthService();
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Reflekt'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      appBar: AppHeader(
+        title: 'Nikki',
+        showBackButton: false,
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'Reflekt - 日記アプリ',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                // 匿名ログインのテスト
-                final user = await _authService.signInAnonymously();
-                if (user != null && mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('匿名ログイン成功: ${user.uid}')),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Reflekt App',
+                style: Theme.of(context).textTheme.displayLarge,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 48),
+              AppButton(
+                text: 'テーマとUIコンポーネント',
+                type: AppButtonType.primary,
+                isFullWidth: true,
+                leadingIcon: Icons.color_lens,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ThemeShowcase(),
+                    ),
                   );
-                }
-              },
-              child: const Text('匿名ログインテスト'),
-            ),
-          ],
+                },
+              ),
+              const SizedBox(height: 16),
+              AppButton(
+                text: 'Firebase テスト',
+                type: AppButtonType.secondary,
+                isFullWidth: true,
+                leadingIcon: Icons.cloud,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const FirebaseTestScreen(),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
+      ),
+      bottomNavigationBar: AppBottomNavigation(
+        currentIndex: 0,
+        onTap: (index) {
+          // タブの切り替え処理を実装
+        },
+        items: const [
+          AppBottomNavigationItem(
+            label: 'ホーム',
+            icon: Icons.home_outlined,
+            activeIcon: Icons.home,
+          ),
+          AppBottomNavigationItem(
+            label: '作成',
+            icon: Icons.add_circle_outline,
+            activeIcon: Icons.add_circle,
+          ),
+          AppBottomNavigationItem(
+            label: '統計',
+            icon: Icons.bar_chart_outlined,
+            activeIcon: Icons.bar_chart,
+          ),
+          AppBottomNavigationItem(
+            label: '設定',
+            icon: Icons.settings_outlined,
+            activeIcon: Icons.settings,
+          ),
+        ],
       ),
     );
   }

@@ -12,7 +12,12 @@
           "package_name": "com.yourname.reflekt.reflekt_app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "757279698129-odji681lm2c6bjn75imnnc8upn3mtcrj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDihYafE-5bed2QqvjSCKNQ9XVhEI70g2o"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "757279698129-odji681lm2c6bjn75imnnc8upn3mtcrj.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "757279698129-l08d5jevm506gmf37btkm61a5rrgs993.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.yourname.reflekt.reflektApp"
+              }
+            }
+          ]
         }
       }
     }

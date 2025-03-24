@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ユーザーコレクションのルール
+    match /users/{userId} {
+      // 自分のデータのみ読み取り可能
+      allow read: if request.auth != null && request.auth.uid == userId;
+      
+      // 認証済みのユーザーが自分のデータを作成・更新可能
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId;
+      
+      // 削除は禁止
+      allow delete: if false;
+    }
+
+    // デフォルトで全てのアクセスを拒否
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

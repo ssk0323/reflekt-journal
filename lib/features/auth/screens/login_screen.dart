@@ -42,10 +42,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   void _signInWithGoogle() async {
     try {
+      print('Googleログイン開始');
       await ref.read(authNotifierProvider.notifier).signInWithGoogle();
+      print('Googleログイン成功');
     } catch (e) {
+      print('Googleログインエラー: $e');
+      String errorMessage = 'Googleログインに失敗しました';
+
+      if (e.toString().contains('popup')) {
+        errorMessage = 'ポップアップがブロックされています。ブラウザの設定を確認してください。';
+      } else if (e.toString().contains('network')) {
+        errorMessage = 'ネットワーク接続エラーが発生しました。インターネット接続を確認してください。';
+      } else if (e.toString().contains('cancelled')) {
+        errorMessage = 'ログインがキャンセルされました。';
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Googleログインに失敗しました: ${e.toString()}')),
+        SnackBar(content: Text(errorMessage)),
       );
     }
   }
@@ -148,8 +161,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       : const Text('ログイン'),
                 ),
 
-                // ソーシャルログインを一時的にコメントアウト
-                /*
+                // ソーシャルログインを有効化
                 const SizedBox(height: 16),
                 const Text(
                   'または',
@@ -162,6 +174,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   icon: 'assets/icons/google.png',
                   onPressed: isLoading ? null : _signInWithGoogle,
                 ),
+
+                // Appleログインは一時的にコメントアウトしたままにする
+                /*
                 const SizedBox(height: 12),
                 SocialButton(
                   text: 'Appleでログイン',

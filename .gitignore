@@ -45,3 +45,7 @@ app.*.map.json
 
 # Secret development plans
 docs/development_plan.md
+
+# Firebase設定ファイル
+**/google-services.json
+**/GoogleService-Info.plist

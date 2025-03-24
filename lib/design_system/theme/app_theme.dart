@@ -10,6 +10,24 @@ class AppTheme {
     useMaterial3: true,
     brightness: Brightness.light,
     primaryColor: ColorTokens.primary,
+    scaffoldBackgroundColor: ColorTokens.backgroundPrimary,
+    appBarTheme: AppBarTheme(
+      backgroundColor: ColorTokens.backgroundPrimary,
+      foregroundColor: ColorTokens.textPrimary,
+      elevation: 0,
+      centerTitle: false,
+      titleTextStyle: TextStyle(
+        color: ColorTokens.primary,
+        fontSize: TypographyTokens.h2,
+        fontWeight: TypographyTokens.bold,
+      ),
+      iconTheme: IconThemeData(
+        color: ColorTokens.textPrimary,
+        size: SizeTokens.iconMd,
+      ),
+      toolbarHeight: SizeTokens.headerHeight,
+      shadowColor: ColorTokens.shadow,
+    ),
     colorScheme: ColorScheme.light(
       primary: ColorTokens.primary,
       primaryContainer: ColorTokens.primaryLight,
@@ -47,7 +65,7 @@ class AppTheme {
       // 見出し小 (H3)
       displaySmall: TextStyle(
         fontSize: TypographyTokens.h3,
-        fontWeight: TypographyTokens.medium,
+        fontWeight: TypographyTokens.mediumWeight,
         color: ColorTokens.textPrimary,
         height: TypographyTokens.headingLineHeight,
       ),
@@ -74,17 +92,17 @@ class AppTheme {
       ),
       labelLarge: TextStyle(
         fontSize: TypographyTokens.body,
-        fontWeight: TypographyTokens.medium,
+        fontWeight: TypographyTokens.mediumWeight,
         color: ColorTokens.textPrimary,
       ),
       labelMedium: TextStyle(
         fontSize: TypographyTokens.small,
-        fontWeight: TypographyTokens.medium,
+        fontWeight: TypographyTokens.mediumWeight,
         color: ColorTokens.textPrimary,
       ),
       labelSmall: TextStyle(
         fontSize: TypographyTokens.xsmall,
-        fontWeight: TypographyTokens.medium,
+        fontWeight: TypographyTokens.mediumWeight,
         color: ColorTokens.textSecondary,
       ),
     ),
@@ -102,7 +120,7 @@ class AppTheme {
         elevation: 0,
         textStyle: TextStyle(
           fontSize: TypographyTokens.body,
-          fontWeight: TypographyTokens.medium,
+          fontWeight: TypographyTokens.mediumWeight,
           letterSpacing: 0.5,
         ),
       ),
@@ -119,7 +137,7 @@ class AppTheme {
         ),
         textStyle: TextStyle(
           fontSize: TypographyTokens.body,
-          fontWeight: TypographyTokens.medium,
+          fontWeight: TypographyTokens.mediumWeight,
           letterSpacing: 0.5,
         ),
       ),
@@ -135,7 +153,7 @@ class AppTheme {
         ),
         textStyle: TextStyle(
           fontSize: TypographyTokens.body,
-          fontWeight: TypographyTokens.medium,
+          fontWeight: TypographyTokens.mediumWeight,
           letterSpacing: 0.5,
         ),
       ),
@@ -187,25 +205,6 @@ class AppTheme {
       margin: EdgeInsets.zero,
     ),
 
-    // アプリバーテーマ
-    appBarTheme: AppBarTheme(
-      backgroundColor: ColorTokens.backgroundPrimary,
-      elevation: 0,
-      centerTitle: false,
-      foregroundColor: ColorTokens.textPrimary,
-      titleTextStyle: TextStyle(
-        color: ColorTokens.primary,
-        fontSize: TypographyTokens.h2,
-        fontWeight: TypographyTokens.bold,
-      ),
-      iconTheme: IconThemeData(
-        color: ColorTokens.textPrimary,
-        size: SizeTokens.iconMd,
-      ),
-      toolbarHeight: SizeTokens.headerHeight,
-      shadowColor: ColorTokens.shadow,
-    ),
-
     // タブバーテーマ
     tabBarTheme: TabBarTheme(
       labelColor: ColorTokens.primary,
@@ -213,7 +212,7 @@ class AppTheme {
       indicatorColor: ColorTokens.primary,
       labelStyle: TextStyle(
         fontSize: TypographyTokens.small,
-        fontWeight: TypographyTokens.medium,
+        fontWeight: TypographyTokens.mediumWeight,
       ),
       unselectedLabelStyle: TextStyle(
         fontSize: TypographyTokens.small,
@@ -228,7 +227,7 @@ class AppTheme {
       unselectedItemColor: ColorTokens.textSecondary,
       selectedLabelStyle: TextStyle(
         fontSize: TypographyTokens.xsmall,
-        fontWeight: TypographyTokens.medium,
+        fontWeight: TypographyTokens.mediumWeight,
       ),
       unselectedLabelStyle: TextStyle(
         fontSize: TypographyTokens.xsmall,
@@ -321,6 +320,20 @@ class AppTheme {
     ),
   );
 
-  /// ダークテーマの設定 (必要に応じて実装)
-  static ThemeData darkTheme = lightTheme;
+  /// ダークテーマの設定
+  static ThemeData darkTheme = ThemeData(
+    brightness: Brightness.dark,
+    primaryColor: ColorTokens.primary,
+    scaffoldBackgroundColor: Colors.grey[900],
+    appBarTheme: AppBarTheme(
+      backgroundColor: Colors.grey[900],
+      elevation: 0,
+    ),
+    colorScheme: ColorScheme.dark(
+      primary: ColorTokens.primary,
+    ),
+    elevatedButtonTheme: lightTheme.elevatedButtonTheme,
+    outlinedButtonTheme: lightTheme.outlinedButtonTheme,
+    inputDecorationTheme: lightTheme.inputDecorationTheme,
+  );
 }

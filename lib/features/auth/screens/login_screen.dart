@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import '../providers/auth_provider.dart';
 import '../widgets/social_button.dart';
 import '../../../design_system/tokens/index.dart';
+
+// dart:ioをフラットフォーム検出用に条件付きでインポート
+import 'dart:io'
+    if (dart.library.html) 'package:reflekt_app/utils/web_stub.dart'
+    as platform;
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -65,10 +71,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   void _signInWithApple() async {
     try {
+      print('Appleログイン開始');
       await ref.read(authNotifierProvider.notifier).signInWithApple();
+      print('Appleログイン成功');
     } catch (e) {
+      print('Appleログインエラー: $e');
+      String errorMessage = 'Appleログインに失敗しました';
+
+      if (e.toString().contains('canceled')) {
+        errorMessage = 'ログインがキャンセルされました。';
+      } else if (e.toString().contains('network')) {
+        errorMessage = 'ネットワーク接続エラーが発生しました。インターネット接続を確認してください。';
+      } else if (e.toString().contains('credentials')) {
+        errorMessage = '認証情報の取得に失敗しました。';
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Appleログインに失敗しました: ${e.toString()}')),
+        SnackBar(content: Text(errorMessage)),
       );
     }
   }
@@ -79,6 +98,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   void _navigateToForgotPassword() {
     Navigator.pushNamed(context, '/forgot-password');
+  }
+
+  // プラットフォームに応じたAppleSignInボタンの表示判定
+  bool _shouldShowAppleSignIn() {
+    if (kIsWeb) return true; // Webではボタンを表示
+
+    // iOS/macOSの場合のみAppleログインを表示
+    try {
+      return platform.Platform.isIOS || platform.Platform.isMacOS;
+    } catch (e) {
+      return false; // プラットフォーム検出でエラーが出た場合は非表示
+    }
   }
 
   @override
@@ -175,15 +206,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   onPressed: isLoading ? null : _signInWithGoogle,
                 ),
 
-                // Appleログインは一時的にコメントアウトしたままにする
-                /*
-                const SizedBox(height: 12),
-                SocialButton(
-                  text: 'Appleでログイン',
-                  icon: 'assets/icons/apple.png',
-                  onPressed: isLoading ? null : _signInWithApple,
-                ),
-                */
+                // Appleログインボタンは特定のプラットフォームでのみ表示
+                if (_shouldShowAppleSignIn()) ...[
+                  const SizedBox(height: 12),
+                  SocialButton(
+                    text: 'Appleでログイン',
+                    icon: 'assets/icons/apple.png',
+                    onPressed: isLoading ? null : _signInWithApple,
+                  ),
+                ],
 
                 const Spacer(),
                 Row(

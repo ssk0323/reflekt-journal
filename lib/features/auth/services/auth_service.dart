@@ -67,15 +67,31 @@ class AuthService {
   // Googleでサインイン
   Future<UserCredential> signInWithGoogle() async {
     try {
+      print('Googleサインイン開始...');
+
       // WebとモバイルでGoogle認証の実装が異なる
       if (kIsWeb) {
+        print('Webでのサインイン方法を使用');
         // Webでの実装
         GoogleAuthProvider googleProvider = GoogleAuthProvider();
+
+        // スコープの追加（必要に応じて）
+        googleProvider
+            .addScope('https://www.googleapis.com/auth/userinfo.email');
+        googleProvider
+            .addScope('https://www.googleapis.com/auth/userinfo.profile');
+
+        // サインイン設定
+        googleProvider.setCustomParameters(
+            {'login_hint': 'user@example.com', 'prompt': 'select_account'});
+
         UserCredential userCredential =
             await _auth.signInWithPopup(googleProvider);
+        print('Googleサインイン成功: ${userCredential.user?.uid}');
 
         // 新規ユーザーの場合はFirestoreにデータを保存
         if (userCredential.additionalUserInfo?.isNewUser ?? false) {
+          print('新規ユーザーのため、Firestoreにデータを保存');
           await _firestore
               .collection('users')
               .doc(userCredential.user!.uid)
@@ -90,10 +106,15 @@ class AuthService {
 
         return userCredential;
       } else {
-        // モバイルでの実装（既存コード）
+        // モバイルでの実装
+        print('モバイルでのサインイン方法を使用');
         final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-        if (googleUser == null) throw Exception('Google sign in was cancelled');
+        if (googleUser == null) {
+          print('Googleサインインがキャンセルされました');
+          throw Exception('Google sign in was cancelled');
+        }
 
+        print('Googleアカウント選択完了: ${googleUser.email}');
         final GoogleSignInAuthentication googleAuth =
             await googleUser.authentication;
         final credential = GoogleAuthProvider.credential(
@@ -101,11 +122,14 @@ class AuthService {
           idToken: googleAuth.idToken,
         );
 
+        print('認証情報取得完了、Firebaseにサインイン中...');
         UserCredential userCredential =
             await _auth.signInWithCredential(credential);
+        print('Firebaseサインイン成功: ${userCredential.user?.uid}');
 
         // 新規ユーザーの場合はFirestoreにデータを保存
         if (userCredential.additionalUserInfo?.isNewUser ?? false) {
+          print('新規ユーザーのため、Firestoreにデータを保存');
           await _firestore
               .collection('users')
               .doc(userCredential.user!.uid)
@@ -121,7 +145,7 @@ class AuthService {
         return userCredential;
       }
     } catch (e) {
-      print('Google sign in error: $e');
+      print('Googleサインインエラー: $e');
       rethrow;
     }
   }
@@ -129,42 +153,70 @@ class AuthService {
   // Appleでサインイン
   Future<UserCredential> signInWithApple() async {
     try {
-      final appleCredential = await SignInWithApple.getAppleIDCredential(
-        scopes: [
-          AppleIDAuthorizationScopes.email,
-          AppleIDAuthorizationScopes.fullName,
-        ],
-      );
+      print('Appleサインイン開始...');
 
-      final oauthCredential = OAuthProvider('apple.com').credential(
-        idToken: appleCredential.identityToken,
-        accessToken: appleCredential.authorizationCode,
-      );
+      // プラットフォームごとの処理
+      if (kIsWeb) {
+        print('Webでのサインイン方法を使用');
+        // WEBでのApple認証
+        OAuthProvider oAuthProvider = OAuthProvider('apple.com');
+        oAuthProvider.setCustomParameters({
+          'locale': 'ja_JP',
+        });
 
-      UserCredential userCredential =
-          await _auth.signInWithCredential(oauthCredential);
+        return await _auth.signInWithPopup(oAuthProvider);
+      } else {
+        print('ネイティブでのサインイン方法を使用');
+        // サインインに必要なスコープをリクエスト
+        final appleCredential = await SignInWithApple.getAppleIDCredential(
+          scopes: [
+            AppleIDAuthorizationScopes.email,
+            AppleIDAuthorizationScopes.fullName,
+          ],
+        );
 
-      // 新規ユーザーの場合はFirestoreにデータを保存
-      if (userCredential.additionalUserInfo?.isNewUser ?? false) {
-        String? displayName;
+        print('Apple認証情報取得完了');
 
-        if (appleCredential.givenName != null &&
-            appleCredential.familyName != null) {
-          displayName =
-              '${appleCredential.givenName} ${appleCredential.familyName}';
+        // Firebaseに必要なcredentialを作成
+        final oauthCredential = OAuthProvider('apple.com').credential(
+          idToken: appleCredential.identityToken,
+          accessToken: appleCredential.authorizationCode,
+        );
+
+        print('Firebase用認証情報作成完了');
+        UserCredential userCredential =
+            await _auth.signInWithCredential(oauthCredential);
+        print('Firebaseサインイン成功: ${userCredential.user?.uid}');
+
+        // Appleは初回のみ名前を返却するため、初回サインイン時に名前を保存する必要がある
+        // 新規ユーザーの場合はFirestoreにデータを保存
+        if (userCredential.additionalUserInfo?.isNewUser ?? false) {
+          print('新規ユーザーのため、Firestoreにデータを保存');
+
+          String? displayName;
+          if (appleCredential.givenName != null &&
+              appleCredential.familyName != null) {
+            displayName =
+                '${appleCredential.givenName} ${appleCredential.familyName}';
+            print('取得した名前: $displayName');
+          }
+
+          await _firestore
+              .collection('users')
+              .doc(userCredential.user!.uid)
+              .set({
+            'email': userCredential.user!.email,
+            'displayName': displayName ?? userCredential.user!.displayName,
+            'photoURL': userCredential.user!.photoURL,
+            'createdAt': FieldValue.serverTimestamp(),
+            'provider': 'apple',
+          });
         }
 
-        await _firestore.collection('users').doc(userCredential.user!.uid).set({
-          'email': userCredential.user!.email,
-          'displayName': displayName ?? userCredential.user!.displayName,
-          'photoURL': userCredential.user!.photoURL,
-          'createdAt': FieldValue.serverTimestamp(),
-          'provider': 'apple',
-        });
+        return userCredential;
       }
-
-      return userCredential;
     } catch (e) {
+      print('Appleサインインエラー: $e');
       rethrow;
     }
   }

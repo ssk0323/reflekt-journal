@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // FirebaseAuthのインポートを追加
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'firebase_options.dart';
 import 'design_system/theme/app_theme.dart';
@@ -10,11 +11,28 @@ import 'features/auth/screens/forgot_password_screen.dart';
 import 'features/auth/providers/auth_provider.dart';
 import 'features/profile/screens/profile_screen.dart';
 
+// アプリのエントリーポイント
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+
+  // Firebase初期化を最もシンプルな方法で行う
+  try {
+    // デフォルトインスタンスのみを使用
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    print('Firebaseが初期化されました: ${Firebase.app().name}');
+
+    // 初期化時の既存セッションをクリア（オプショナル）
+    try {
+      await FirebaseAuth.instance.signOut();
+    } catch (e) {
+      // 無視
+    }
+  } catch (e) {
+    print('Firebase初期化エラー: $e');
+  }
+
   runApp(
     const ProviderScope(
       child: MyApp(),

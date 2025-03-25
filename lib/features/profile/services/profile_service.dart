@@ -2,12 +2,22 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_core/firebase_core.dart'; // Firebase クラスの追加
 import '../../auth/models/user_model.dart';
 
 class ProfileService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
+  // 名前付きFirebaseインスタンスを使用
+  final FirebaseAuth _auth = FirebaseAuth.instanceFor(
+    app: Firebase.app('ReflektApp'),
+  );
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instanceFor(
+    app: Firebase.app('ReflektApp'),
+  );
+
+  final FirebaseStorage _storage = FirebaseStorage.instanceFor(
+    app: Firebase.app('ReflektApp'),
+  );
 
   // ユーザープロフィールの取得
   Future<UserModel?> getUserProfile() async {

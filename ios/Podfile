@@ -1,7 +1,6 @@
-# Uncomment this line to define a global platform for your project
-platform :ios, '12.0'  # 12.0以上が必要
+platform :ios, '12.0'
 
-# CocoaPods analytics sends network stats synchronously affecting flutter build latency.
+# CocoaPodsはFlutterビルドの遅延に影響するネットワーク統計情報を送信します。
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 
 project 'Runner', {
@@ -30,12 +29,6 @@ flutter_ios_podfile_setup
 target 'Runner' do
   use_frameworks!
   use_modular_headers!
-
-  # FirebaseのPodを使用するための設定
-  pod 'Firebase/Auth'
-  pod 'Firebase/Firestore'
-  pod 'Firebase/Storage'
-
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   target 'RunnerTests' do
     inherit! :search_paths
@@ -45,5 +38,68 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
+    
+    # iOS 12.0 以上を強制
+    target.build_configurations.each do |config|
+      # iOS のデプロイメントターゲットを強制的に 12.0 に設定
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+      
+      # Xcode 16の問題に対応するための設定 - すべてのターゲットに適用
+      config.build_settings['ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
+      
+      # アーキテクチャ設定の修正 - シミュレーターとデバイスで適切に動作するように
+      if config.name == 'Debug' || config.name == 'Profile' || config.name == 'Release'
+        # シミュレーター向けの設定（arm64アーキテクチャを除外）
+        config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
+        
+        # 実機向けの設定（arm64を含める）
+        config.build_settings['ARCHS'] = "arm64"
+        config.build_settings['ONLY_ACTIVE_ARCH'] = 'NO'
+        
+        # 問題の回避策として、有効なアーキテクチャを明示的に設定
+        config.build_settings['VALID_ARCHS'] = "arm64 arm64e"
+      end
+      
+      # 問題のあるライブラリに特別な設定を追加
+      if ['BoringSSL-GRPC', 'gRPC-Core', 'Firebase'].include?(target.name)
+        # モジュール関連の設定をさらに緩和
+        config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
+        config.build_settings['CLANG_MODULES_DISABLE_PRIVATE_WARNING'] = 'YES'
+      end
+      
+      # BoringSSL-GRPCの問題を解決（最小限のアプローチ）
+      if target.name == 'BoringSSL-GRPC'
+        target.source_build_phase.files.each do |file|
+          if file.settings && file.settings['COMPILER_FLAGS']
+            flags = file.settings['COMPILER_FLAGS'].split
+            flags.reject! { |flag| flag.include?('-G') }
+            file.settings['COMPILER_FLAGS'] = flags.join(' ')
+          end
+        end
+        
+        # 全ビルド設定の-Gフラグも削除
+        target.build_configurations.each do |config|
+          config.build_settings['OTHER_CFLAGS'] = '$(inherited) -Wno-deprecated-declarations'
+          config.build_settings['GCC_WARN_INHIBIT_ALL_WARNINGS'] = 'YES'
+        end
+      end
+    end
   end
+  
+  # Runner の設定も適切に更新
+  project = Xcodeproj::Project.open(File.join(Dir.pwd, 'Runner.xcodeproj'))
+  project.targets.each do |target|
+    if target.name == 'Runner'
+      target.build_configurations.each do |config|
+        # シミュレーター向けの設定
+        config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
+        
+        # 実機向けの設定
+        config.build_settings['ARCHS'] = "arm64"
+        config.build_settings['VALID_ARCHS'] = "arm64 arm64e"
+        config.build_settings['ONLY_ACTIVE_ARCH'] = 'NO' if config.name == 'Release'
+      end
+    end
+  end
+  project.save
 end

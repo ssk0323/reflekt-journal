@@ -1,40 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // FirebaseAuthのインポートを追加
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'firebase_options.dart';
-import 'design_system/theme/app_theme.dart';
-import 'screens/home_screen.dart';
-import 'features/auth/screens/login_screen.dart';
-import 'features/auth/screens/signup_screen.dart';
-import 'features/auth/screens/forgot_password_screen.dart';
-import 'features/auth/providers/auth_provider.dart';
-import 'features/profile/screens/profile_screen.dart';
+import 'screens/main_screen.dart'; // MainScreenを使用
+import 'providers/auth_provider.dart'; // パス修正
 
 // アプリのエントリーポイント
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Firebase初期化を最もシンプルな方法で行う
   try {
-    // デフォルトインスタンスのみを使用
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    print('Firebaseが初期化されました: ${Firebase.app().name}');
-
-    // 初期化時の既存セッションをクリア（オプショナル）
-    try {
-      await FirebaseAuth.instance.signOut();
-    } catch (e) {
-      // 無視
-    }
+    print('Firebase初期化成功: ${Firebase.app().name}');
   } catch (e) {
     print('Firebase初期化エラー: $e');
   }
 
   runApp(
-    const ProviderScope(
+    ProviderScope(
       child: MyApp(),
     ),
   );
@@ -47,17 +32,11 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       title: 'Reflekt App',
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const AuthWrapper(),
-        '/login': (context) => const LoginScreen(),
-        '/signup': (context) => const SignupScreen(),
-        '/forgot-password': (context) => const ForgotPasswordScreen(),
-        '/profile': (context) => const ProfileScreen(),
-      },
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        useMaterial3: true,
+      ),
+      home: AuthWrapper(),
     );
   }
 }
@@ -73,9 +52,20 @@ class AuthWrapper extends ConsumerWidget {
     return authState.when(
       data: (user) {
         if (user != null) {
-          return const HomeScreen();
+          return MainScreen(); // MainScreenを使用
         } else {
-          return const LoginScreen();
+          // 簡易ログイン画面（実際のアプリでは専用のログイン画面を使用）
+          return Scaffold(
+            body: Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  // StreamProviderではなくStateNotifierProviderを使用
+                  ref.read(authProviderProvider.notifier).signInAnonymously();
+                },
+                child: Text('ログイン'),
+              ),
+            ),
+          );
         }
       },
       loading: () => const Scaffold(

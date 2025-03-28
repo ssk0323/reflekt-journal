@@ -46,32 +46,37 @@ class DefaultFirebaseOptions {
     }
   }
 
-  // GoogleService-Info.plistから以下の値を入力してください
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAXhIYNUHXx29wzJdDIeDqoZG4w6QDq_FU', // iOSのAPIキー
-    appId: '1:757279698129:ios:80c99c58d7c53a137169f0', // iOSのApp ID
+    apiKey: 'AIzaSyAjTtJvgLlTDDxhV5Vf_JZiFWOmGpckgLA',
+    appId: '1:757279698129:ios:6f543c8b186f9d697169f0',
     messagingSenderId: '757279698129',
     projectId: 'reflekt-journal-a436b',
-    storageBucket: 'reflekt-journal-a436b.appspot.com',
-    iosBundleId: 'com.kenzosasaki.reflekt.reflektApp', // あなたのバンドルID
+    storageBucket: 'reflekt-journal-a436b.firebasestorage.app',
+    iosClientId: '757279698129-l08d5jevm506gmf37btkm61a5rrgs993.apps.googleusercontent.com',
+    iosBundleId: 'com.yourname.reflekt.reflektApp',
   );
 
-  // google-services.jsonから以下の値を入力してください
+  // GoogleService-Info.plistから以下の値を入力してください
+
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDihYafE-5bed2QqvjSCKNQ9XVhEI70g2o',
     appId: '1:757279698129:android:bf02ee56e7d059137169f0',
     messagingSenderId: '757279698129',
     projectId: 'reflekt-journal-a436b',
-    storageBucket: 'reflekt-journal-a436b.appspot.com',
+    storageBucket: 'reflekt-journal-a436b.firebasestorage.app',
+  );
+
+  // google-services.jsonから以下の値を入力してください
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyDkiOfo6IbmOuFUqDF4XK2LsTCke4q4_wU',
+    appId: '1:757279698129:web:91067da1b294a67b7169f0',
+    messagingSenderId: '757279698129',
+    projectId: 'reflekt-journal-a436b',
+    authDomain: 'reflekt-journal-a436b.firebaseapp.com',
+    storageBucket: 'reflekt-journal-a436b.firebasestorage.app',
+    measurementId: 'G-NPNTB0PDHF',
   );
 
   // Webの設定（必要な場合）
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDihYafE-5bed2QqvjSCKNQ9XVhEI70g2o',
-    appId: '1:757279698129:web:e4efba1df48a17ce7169f0',
-    messagingSenderId: '757279698129',
-    projectId: 'reflekt-journal-a436b',
-    storageBucket: 'reflekt-journal-a436b.appspot.com',
-    authDomain: 'reflekt-journal-a436b.firebaseapp.com',
-  );
 }
